@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>採購清單</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+        integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <style>
+        body {
+            background-image: url('https://picsum.photos/1000/1000?image=983');
+            background-size: cover;
+            min-height: 100vh;
+        }
+
+        #shoppingListForm {
+            margin-top: 100px;
+            margin-bottom: 100px;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 20px 15px rgba(0, 0, 0, .3);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <form class="bg-white" id="shoppingListForm" onsubmit="formSend(event)">
+                    <h3>採購清單</h3>
+                    <div class="form-group">
+                        <label for="productNameInput">商品名稱</label>
+                        <input type="text" id="productNameInput" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPriceInput">商品價格</label>
+                        <input type="number" min="1" id="productPriceInput" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategoryInput">商品類型</label>
+                        <select id="productCategoryInput" class="form-control">
+                            <option value="生活用品">生活用品</option>
+                            <option value="食品">食品</option>
+                            <option value="清潔用品">清潔用品</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="productRemarksInput">備註</label>
+                        <input type="text" id="productRemarksInput" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <button id="sendFormBtn" type="submit" class="btn btn-primary btn-lg">增加/更新項目</button>
+                    </div>
+                    <p><small></small></p>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div id="firstCol" class="col-sm-4"></div>
+            <div id="secondCol" class="col-sm-4"></div>
+            <div id="thirdCol" class="col-sm-4"></div>
+        </div>
+    </div>
+    <script>
+        /**************************
+            下次打開網頁時可以看到先前紀錄的採購項目(結合localstorage操作)
+        **************************/
+
+        //  取的徽章原色的函數
+        function getBadgeColor(category) {
+            if (category === "生活用品") {
+                badgeColor = "badge-success"
+            } else if (category === "食品") {
+                badgeColor = 'badge-danger'
+            } else if (category === "清潔用品") {
+                badgeColor = "badge-primary"
+            } else {
+                badgeColor = "badge-secondary"
+            }
+            return badgeColor
+        };
+
+        // 定義採購清單的物件建構式
+        function ShoppingList() {
+            // 採購清單
+            // 預設是一個空物件
+            this.list = {};
+            // 新增項目的函數
+            this.addItem = function (newItem) {
+                //  把項目新增/更新到list裡面
+                // 把newItem的name作為屬性名稱
+                this.list[newItem.name] = newItem;
+                console.log(this.list);
+                // 把資料顯示到畫面上
+                this.renderList();
+            };
+            // 移除項目函數
+            this.removeItem = function (targetKey) {
+                delete this.list[targetKey];
+                // 重新顯示資料在畫面上
+                this.renderList();
+            };
+            // 顯示資料到畫面上的函數
+            this.renderList = function () {
+                // 把畫面上已經有的資料清空
+                document.getElementById("firstCol").innerHTML = '';
+                document.getElementById("secondCol").innerHTML = '';
+                document.getElementById("thirdCol").innerHTML = '';
+                // 把清單裡面有的資料一個一個叫出來;
+                // 第幾位使用者
+                let item0Order = 0;
+
+                for (let key in this.list) {
+                    // 資料顯示的目標
+                    let col;
+                    // 如果itemOrder%3=0
+                    if (item0Order % 3 === 0) {
+                        col = 'firstCol'
+                    } else if (item0Order % 3 === 1) {
+                        col = 'secondCol'
+                    } else {
+                        col = 'thirdCol'
+                    }
+                    // item代表每一個在清單裡的物件
+                    const item = this.list[key];
+                    // 把資料顯示到畫面上
+                    // if (count0User % 3 === 1) {
+                    //     getId = 'firstCol'
+                    // } else if (count0User % 3 === 2) {
+                    //     getId = 'secondCol'
+                    // } else {
+                    //     getId = 'thirdCol'
+                    // }
+                    document.getElementById(col).innerHTML += `
+                    <div class="card mb-3" >
+                    <div class="card-body">
+                    <h3>${item.name}</h3>
+                    <p>價格$ ${item.price}</p>
+                    <span class="badge ${getBadgeColor(item.category)}">
+                                    ${item.category}
+                                </span>
+                    
+                    <p>備註:${item.remarks}</p>
+                    <button class="btn btn-danger"
+                    data-item-name="${key}"
+                    onclick="onDeleteBtnClick(event)">刪除</botton>
+                    
+                    </div>
+                    </div>
+                    `
+                    // 把item0Order+ 1
+                    item0Order += 1
+                };
+            };
+        }
+        // 定義表單送出時,呼叫的函式
+        function formSend(e) {
+            // 防止表單重整畫面
+            e.preventDefault();
+            // 建立一個新的項目
+            const newItem = {
+                name: document.getElementById('productNameInput').value,
+                price: parseInt(document.getElementById('productPriceInput').value),
+                category: document.getElementById('productCategoryInput').value,
+                remarks: document.getElementById('productRemarksInput').value
+            };
+            // 將新的項目增加到新的清單內
+            shoppingList.addItem(newItem);
+            // 輕空表單現有的value
+            document.getElementById('productNameInput').value = '';
+            document.getElementById('productPriceInput').value = '';
+            document.getElementById('productRemarksInput').value = '';
+        };
+
+        // 刪除按鈕被點擊時要觸發的還數
+        function onDeleteBtnClick(event) {
+            // 取的被點擊按鈕的data-item-name屬性
+            const targetKey = event.target.getAttribute('data-item-name');
+            console.log(targetKey);
+            // 在shoppingList.list物件裡面刪除指定key
+            shoppingList.removeItem(targetKey)
+        };
+
+        // 建立一個採購清單的實例
+        const shoppingList = new ShoppingList();
+    </script>
+</body>
+
+</html>
