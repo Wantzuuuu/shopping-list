@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
         integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             background-image: url('https://picsum.photos/1000/1000?image=983');
             background-size: cover;
@@ -21,6 +25,41 @@
             padding: 15px;
             border-radius: 6px;
             box-shadow: 0 20px 15px rgba(0, 0, 0, .3);
+            position: relative;
+            border: 1px solid white;
+        }
+
+        #shoppingListForm input,
+        #productCategoryInput {
+            background: none;
+            color: white;
+        }
+
+        .bg-block {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-block::after {
+            content: "";
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background-attachment: fixed;
+            background-size: cover;
+            filter: blur(10px);
+            background-image: url('https://picsum.photos/1000/1000?image=983');
+        }
+
+        .card {
+            background: none;
         }
     </style>
 </head>
@@ -29,7 +68,8 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <form class="bg-white" id="shoppingListForm" onsubmit="formSend(event)">
+                <form class="text-white" id="shoppingListForm" onsubmit="formSend(event)">
+                    <div class="bg-block"></div>
                     <h3>採購清單</h3>
                     <div class="form-group">
                         <label for="productNameInput">商品名稱</label>
@@ -73,13 +113,13 @@
         //  取的徽章原色的函數
         function getBadgeColor(category) {
             if (category === "生活用品") {
-                badgeColor = "badge-success"
+                badgeColor = "success"
             } else if (category === "食品") {
-                badgeColor = 'badge-danger'
+                badgeColor = 'danger'
             } else if (category === "清潔用品") {
-                badgeColor = "badge-primary"
+                badgeColor = "primary"
             } else {
-                badgeColor = "badge-secondary"
+                badgeColor = "secondary"
             }
             return badgeColor
         };
@@ -120,6 +160,7 @@
                 // console.log(this.list);
                 for (let key in this.list) {
                     // 資料顯示的目標
+                    // console.log(key);
                     let col;
                     // 如果itemOrder%3=0
                     if (item0Order % 3 === 0) {
@@ -140,11 +181,12 @@
                     //     getId = 'thirdCol'
                     // }
                     document.getElementById(col).innerHTML += `
-                    <div class="card mb-3" >
-                    <div class="card-body">
+                    <div class="card mb-3 border border-${getBadgeColor(item.category)}" >
+                    <div class="bg-block"></div>
+                    <div class="card-body text-white">
                     <h3>${item.name}</h3>
                     <p>價格$ ${item.price}</p>
-                    <span class="badge ${getBadgeColor(item.category)}">
+                    <span class="badge badge-${getBadgeColor(item.category)}">
                                     ${item.category}
                                 </span>
                     
